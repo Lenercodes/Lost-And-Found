@@ -1,49 +1,99 @@
-import { useState } from "react";
-import logo from "../assets/logo.png";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import PersonIcon from "@mui/icons-material/Person";
 
 function Navbar() {
   const [active, setActive] = useState(false);
-  const [cls,setCls]=useState("inactive")
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 50;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setActive(false);
+  }, [location]);
 
   function openNav() {
-    setActive(true)
-   setCls("active")
-    
+    setActive(true);
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
   }
-  function closeNav(){
-    setActive(false)
-    setCls("inactive")
+
+  function closeNav() {
+    setActive(false);
+    document.body.style.overflow = 'unset'; // Restore scroll
   }
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
-    <nav>
-      <a href="/"><img src={logo} alt="" /></a>
-      {/* <ul style={{ width: `${width}` }}> */}
-      <ul className={cls}>
+    <nav className={scrolled ? 'scrolled' : ''}>
+      <Link to="/" className="logo-text">
+        Find It Back
+      </Link>
+      
+      <ul className={active ? 'active' : 'inactive'}>
         <li>
-          <a href="/">Home</a>
+          <Link to="/" className={isActive('/') ? 'active-link' : ''}>
+            Home
+          </Link>
         </li>
         <li>
-          <a href="/find">Find item</a>
+          <Link to="/find" className={isActive('/find') ? 'active-link' : ''}>
+            Browse Items
+          </Link>
         </li>
         <li>
-          <a href="/post">Post item</a>
+          <Link to="/post" className={isActive('/post') ? 'active-link' : ''}>
+            Report Found
+          </Link>
         </li>
         <li>
-          <a href="/#about">About us</a>
+          <Link to="/report" className={isActive('/report') ? 'active-link' : ''}>
+            Report Lost
+          </Link>
+        </li>
+        <li>
+          <Link to="/about" className={isActive('/about') ? 'active-link' : ''}>
+            About
+          </Link>
+        </li>
+        <li className="auth-links">
+          <Link to="/login" className={`auth-btn ${isActive('/login') ? 'active-link' : ''}`}>
+            <PersonIcon />
+            Login
+          </Link>
         </li>
       </ul>
-      {active ? (
-        <button className="menu-container" onClick={closeNav}>
+
+      {/* Mobile Menu Button */}
+      <button className="menu-container" onClick={active ? closeNav : openNav}>
+        {active ? (
           <CloseIcon className="menu close" />
-        </button>
-      ) : (
-        <button className="menu-container" onClick={openNav}>
+        ) : (
           <MenuIcon className="menu" />
-        </button>
+        )}
+      </button>
+
+      {/* Mobile Menu Overlay */}
+      {active && (
+        <div className="mobile-overlay" onClick={closeNav}></div>
       )}
     </nav>
   );
 }
+
 export default Navbar;

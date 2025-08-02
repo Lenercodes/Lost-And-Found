@@ -12,6 +12,8 @@ function Details() {
   const [item, setItem] = useState("");
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState("");
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const { id } = useParams();
 
   const override: CSSProperties = {
@@ -31,21 +33,47 @@ function Details() {
         setItem(res.data);
         console.log(res.data);
         setLoading(false);
+        
+        // Handle image loading after item data is loaded
+        if (res.data.image) {
+          setImageLoading(true);
+          setImageError(false);
+          
+          const img = new Image();
+          img.onload = () => {
+            setImage(`${api}/files/${res.data.image}`);
+            setImageLoading(false);
+          };
+          img.onerror = () => {
+            setImage(noimg);
+            setImageError(true);
+            setImageLoading(false);
+          };
+          img.src = `${api}/files/${res.data.image}`;
+          
+          // Fallback timeout
+          const timeout = setTimeout(() => {
+            if (imageLoading) {
+              setImage(noimg);
+              setImageError(true);
+              setImageLoading(false);
+            }
+          }, 5000);
+          
+          return () => clearTimeout(timeout);
+        } else {
+          setImage(noimg);
+          setImageLoading(false);
+        }
       })
       .catch((error) => {
         console.log(error);
         setLoading(false);
+        setImage(noimg);
+        setImageLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  axios.get(`${api}/files/${item.image}`).then((res) => {
-    console.log(res);
-    setImage(`${api}/files/${item.image}`)
-  }).catch((error) => {
-        console.log(error);
-      setImage(noimg);
-    });
+  }, [id]);
 
   return (
     <main id="detailspage">
@@ -63,7 +91,20 @@ function Details() {
         ) : (
           <div className="details-card">
             <div className="img-container">
-              <img src={image} alt="" />
+              {imageLoading && (
+                <div className="image-loading">
+                  <div className="loading-spinner"></div>
+                </div>
+              )}
+              <img 
+                src={image || noimg} 
+                alt={item.title || "Item image"}
+                className={imageError ? "no-image" : ""}
+                onError={() => {
+                  setImage(noimg);
+                  setImageError(true);
+                }}
+              />
             </div>
 
             <div className="action-container">
@@ -80,16 +121,7 @@ function Details() {
               <p>{item.name}</p>
             </div>
 
-            {/* <div className="details-container">
-            <p>Email</p>
-            <p>arjuncvinod@mail.com</p>
-          </div>
-          <div className="details-container">
-            <p>Phone</p>
-            <p>8494865475</p>
-          </div> */}
             <div className="details-container desc">
-              {/* <p>Description</p> */}
               <p>{item.description}</p>
             </div>
           </div>

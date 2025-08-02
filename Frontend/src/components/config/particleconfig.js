@@ -1,7 +1,7 @@
 const particleconfig = {
    background: {
     color: {
-      value: "#000",
+      value: "transparent",
     },
     image: "",
     position: "",
@@ -46,18 +46,24 @@ const particleconfig = {
         distance: 200,
         duration: 1,
       },
+      grab: {
+        distance: 140,
+        links: {
+          opacity: 0.6,
+        },
+      },
     },
   },
  
   particles: {
     color: {
-      value: "#DAB38C",
+      value: ["#007bff", "#6c757d", "#495057"],
     },
     links: {
-      color: "#fdf004",
+      color: "#007bff",
       distance: 150,
       enable: true,
-      opacity: 0.5,
+      opacity: 0.3,
       width: 1,
     },
     move: {
@@ -67,7 +73,7 @@ const particleconfig = {
         default: "bounce",
       },
       random: false,
-      speed: 2,
+      speed: 1.5,
       straight: false,
     },
     number: {
@@ -75,16 +81,26 @@ const particleconfig = {
         enable: true,
         area: 800,
       },
-      value: 80,
+      value: 60,
     },
     opacity: {
-      value: 0.5,
+      value: 0.4,
+      animation: {
+        enable: true,
+        speed: 1,
+        minimumValue: 0.1,
+      },
     },
     shape: {
       type: "circle",
     },
     size: {
-      value: { min: 1, max: 5 },
+      value: { min: 1, max: 3 },
+      animation: {
+        enable: true,
+        speed: 2,
+        minimumValue: 0.1,
+      },
     },
   },
   detectRetina: true,
